@@ -1,11 +1,16 @@
 package Nivell1.Exercici1;
 
+import java.io.File;
 import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
 
-        String filePath = ".\\src\\Nivell1\\Exercici1\\resources";
+        String filePath = System.getProperty("user.dir") + File.separator +
+                "src" + File.separator +
+                "Nivell1" + File.separator +
+                "Exercici1" + File.separator +
+                "resources";
 
         DirectoryContentSorter fileContentSorter = new DirectoryContentSorter();
         fileContentSorter.showSortedFiles(filePath);
