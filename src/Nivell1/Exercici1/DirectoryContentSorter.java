@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 public class DirectoryContentSorter {
 
-    public void showSortedFiles(String path) {
+    public static void showSortedFiles(String path) {
         File file = new File(path);
         String[] list = file.list();
         Arrays.sort(list);

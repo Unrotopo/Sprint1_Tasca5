@@ -12,7 +12,6 @@ public class Main {
                 "Exercici1" + File.separator +
                 "resources";
 
-        DirectoryContentSorter fileContentSorter = new DirectoryContentSorter();
-        fileContentSorter.showSortedFiles(filePath);
+        DirectoryContentSorter.showSortedFiles(filePath);
     }
 }
