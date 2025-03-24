@@ -39,7 +39,7 @@ public class WriteFile {
 
     public static Path askDestination() {
         if (destination == null) {
-            System.out.println("Where do you want to save the file?:");
+            System.out.println("Where do you want to save the file?");
             destination = Paths.get(System.getProperty("user.dir") + sc.nextLine());
             try {
                 if (!Files.exists(destination)) {
