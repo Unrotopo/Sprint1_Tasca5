@@ -8,9 +8,12 @@ public class DirectoryContentSorter {
     public static void showSortedFiles(String path) {
         File file = new File(path);
         String[] list = file.list();
-        Arrays.sort(list);
-        for (String s : list) {
-            System.out.println(s);
+
+        if (list != null) {
+            Arrays.sort(list);
+            for (String s : list) {
+                System.out.println(s);
+            }
         }
     }
 }

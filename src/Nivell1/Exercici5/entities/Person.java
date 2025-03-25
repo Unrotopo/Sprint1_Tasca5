@@ -1,7 +1,6 @@
-package Nivell1.Exercici5;
+package Nivell1.Exercici5.entities;
 
 import java.io.*;
-import java.nio.file.Files;
 
 public class Person implements Serializable {
 
@@ -29,7 +28,7 @@ public class Person implements Serializable {
         this.age = age;
     }
 
-    public static void serializeArchive(Person person) throws IOException {
+    public static void serializePerson(Person person) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(person.getName() + ".ser");
              ObjectOutputStream oos = new ObjectOutputStream(fos)) {
 
@@ -40,7 +39,7 @@ public class Person implements Serializable {
         }
     }
 
-    public static void deserializeArchive() throws IOException, ClassNotFoundException {
+    public static void deserializePerson() throws IOException, ClassNotFoundException {
 
         try (FileInputStream fis = new FileInputStream("Paquita.ser");
              ObjectInputStream ois = new ObjectInputStream(fis)) {

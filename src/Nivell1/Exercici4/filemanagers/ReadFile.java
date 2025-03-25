@@ -1,4 +1,4 @@
-package Nivell1.Exercici4;
+package Nivell1.Exercici4.filemanagers;
 
 import java.io.*;
 import java.nio.file.*;

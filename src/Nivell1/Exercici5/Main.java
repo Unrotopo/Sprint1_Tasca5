@@ -1,5 +1,7 @@
 package Nivell1.Exercici5;
 
+import Nivell1.Exercici5.entities.Person;
+
 import java.io.IOException;
 
 public class Main {
@@ -7,7 +9,7 @@ public class Main {
 
         Person person1 = new Person("Paquita", 59);
 
-        Person.serializeArchive(person1);
-        Person.deserializeArchive();
+        Person.serializePerson(person1);
+        Person.deserializePerson();
     }
 }

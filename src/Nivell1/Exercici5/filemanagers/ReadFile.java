@@ -1,4 +1,4 @@
-package Nivell1.Exercici5;
+package Nivell1.Exercici5.filemanagers;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
