@@ -8,31 +8,33 @@ import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 
 public class AESCipher {
     public final String ALGORITHM = "AES";
     public final String TRANSFORMATION = "AES/CBC/PKCS5Padding";
     private String inputDirectory;
     private String outputDirectory;
-    private String fileName;
+    private String inFileName;
+    private String outFileName;
+
 
     public AESCipher(ConfigLoader config) {
         inputDirectory = config.getProperty("inputDirectoryCrypt");
         outputDirectory = config.getProperty("outputDirectoryCrypt");
-        fileName = config.getProperty("fileNameCrypt");
+        inFileName = config.getProperty("inFileNameCrypt");
+        outFileName = config.getProperty("outFileNameCrypt");
+
     }
 
-    public void encryptFile(SecretKey secretKey) throws IOException, InvalidAlgorithmParameterException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
+    public void encryptFile(SecretKey secretKey, IvParameterSpec initializationVector) throws IOException, InvalidAlgorithmParameterException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
+
         byte[] initializationVectorSize = new byte[16];
-        new SecureRandom().nextBytes(initializationVectorSize);
-        IvParameterSpec initializationVector = new IvParameterSpec(initializationVectorSize);
 
         Cipher cipher = Cipher.getInstance(TRANSFORMATION);
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, initializationVector);
 
-        try (FileInputStream fis = new FileInputStream(inputDirectory + fileName);
-             FileOutputStream fos = new FileOutputStream(outputDirectory + "SecretKnowledge.aes");
+        try (FileInputStream fis = new FileInputStream(inputDirectory + inFileName);
+             FileOutputStream fos = new FileOutputStream(outputDirectory + outFileName);
              CipherOutputStream cos = new CipherOutputStream(fos, cipher)) {
 
             fos.write(initializationVectorSize);
@@ -48,8 +50,26 @@ public class AESCipher {
         }
     }
 
-    public void decryptFile(SecretKey secretKey, String newDecryptedFile) throws Exception {
-        
+    public void decryptFile(SecretKey secretKey, IvParameterSpec initializationVector) throws Exception {
+
+        byte[] initializationVectorSize = new byte[16];
+
+        try (FileInputStream fis = new FileInputStream(outputDirectory + outFileName);
+             FileOutputStream fos = new FileOutputStream(outputDirectory + inFileName)) {
+
+            fis.read(initializationVectorSize);
+
+            Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, initializationVector);
+
+            try (CipherInputStream cis = new CipherInputStream(fis, cipher)) {
+                byte[] buffer = new byte[2048];
+                int bytesRead;
+                while ((bytesRead = cis.read(buffer)) != -1) {
+                    fos.write(buffer, 0, bytesRead);
+                }
+            }
+        }
     }
 
     public SecretKey generateAESKey() throws NoSuchAlgorithmException {
