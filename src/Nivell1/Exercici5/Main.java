@@ -10,6 +10,6 @@ public class Main {
         Person person1 = new Person("Paquita", 59);
 
         Person.serializePerson(person1);
-        Person.deserializePerson();
+        Person.deserializePerson(person1);
     }
 }

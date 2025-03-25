@@ -28,8 +28,13 @@ public class Person implements Serializable {
         this.age = age;
     }
 
+    static String personsDirectory = "src" + File.separator +
+            "Nivell1" + File.separator +
+            "Exercici5" + File.separator +
+            "persons" + File.separator;
+
     public static void serializePerson(Person person) throws IOException {
-        try (FileOutputStream fos = new FileOutputStream(person.getName() + ".ser");
+        try (FileOutputStream fos = new FileOutputStream(personsDirectory + person.getName() + ".ser");
              ObjectOutputStream oos = new ObjectOutputStream(fos)) {
 
             oos.writeObject(person);
@@ -39,9 +44,9 @@ public class Person implements Serializable {
         }
     }
 
-    public static void deserializePerson() throws IOException, ClassNotFoundException {
+    public static void deserializePerson(Person serializedPerson) throws IOException, ClassNotFoundException {
 
-        try (FileInputStream fis = new FileInputStream("Paquita.ser");
+        try (FileInputStream fis = new FileInputStream(personsDirectory + serializedPerson.getName() + ".ser");
              ObjectInputStream ois = new ObjectInputStream(fis)) {
 
             Person person = (Person) ois.readObject();

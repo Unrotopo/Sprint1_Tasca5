@@ -9,7 +9,8 @@ elegido por el usuario.
 
 El método serializePerson de la clase Person serializa el objeto person que se le pasa como parámetro en
 un fichero .ser con el nombre del atributo name del objeto serializado.
-El método deserializePerson de la clase Person deserializa el archivo .ser e imprime el objeto en pantalla.
+El método deserializePerson de la clase Person deserializa el archivo .ser correspondiente al objeto Person
+que el usuario quiere deserializar y lo muestra en pantalla.
 
 La carpeta de trabajo del Proyecto es Tasca5.
 
