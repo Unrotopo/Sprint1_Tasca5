@@ -13,7 +13,6 @@ import java.util.List;
 public class TreeDirectoryContentSorterToFile {
 
     String destinationPath = System.getProperty("user.dir") + File.separator +
-            "src" + File.separator +
             "Nivell1" + File.separator +
             "Exercici3" + File.separator +
             "resources" + File.separator;
