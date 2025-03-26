@@ -7,7 +7,7 @@ public class Main {
     public static void main(String[] args) {
 
 
-        String directoryPath = System.getProperty("user.dir") + File.separator + "src";
+        String directoryPath = System.getProperty("user.dir");
         TreeDirectoryContentSorter t = new TreeDirectoryContentSorter();
         t.showMoreSortedFiles(Paths.get(directoryPath));
     }
