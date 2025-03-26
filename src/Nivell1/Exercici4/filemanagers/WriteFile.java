@@ -1,6 +1,7 @@
 package Nivell1.Exercici4.filemanagers;
 
 import java.io.*;
+import java.nio.Buffer;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -11,79 +12,71 @@ import java.util.Scanner;
 public class WriteFile {
 
     private static final Scanner sc = new Scanner(System.in);
-    private static Path destination = null;
 
     public static void runWriter() {
-        getCurrentAndChildren(askStartingDirectory());
+        Path startingDirectory = askDirectory("Give me a folder and I will tell you everything it contains:");
+        Path destination = askDirectory("Where do you want to save the file?");
+        System.out.println("What will be the name of the file? (make it end in .txt)");
+        String fileName = sc.nextLine();
+
+        List<String> contentToWrite = new ArrayList<>();
+        processDirectory(startingDirectory, contentToWrite);
+        writeFile(destination, fileName, contentToWrite);
     }
 
-    public static Path askStartingDirectory() {
-        System.out.println("\nYour current directory is: " + System.getProperty("user.dir") + "\n");
-        System.out.println("Give me a folder and I will tell you everything it contains:");
+    public static Path askDirectory(String message) {
+        System.out.println(message);
+        Path directory = Paths.get(System.getProperty("user.dir"), sc.nextLine());
 
-        String givenDirectory = sc.nextLine();
-        Path startingDirectory = Paths.get(System.getProperty("user.dir") + givenDirectory);
-
-        if (!Files.exists(startingDirectory)) {
-            System.out.println("Directory " + startingDirectory + " does not exist.");
-        }
-
-        return startingDirectory;
-    }
-
-    public static Path askDestination() {
-        if (destination == null) {
-            System.out.println("Where do you want to save the file?:");
-            destination = Paths.get(System.getProperty("user.dir") + sc.nextLine());
+        if (!Files.exists(directory)) {
+            System.out.println("Directory " + directory + " does not exist. Let me help you.");
             try {
-                if (!Files.exists(destination)) {
-                    Files.createDirectories(destination);
-                }
+                Files.createDirectories(directory);
+                System.out.println("There, directory created.");
             } catch (IOException e) {
                 System.out.println(e.getMessage());
             }
         }
-        return destination;
+        return directory;
     }
 
-    public static void getCurrentAndChildren(Path father) {
-        try {
-            if (Files.isDirectory(father)) {
-                List<Path> children = new ArrayList<>();
+    public static void processDirectory(Path father, List<String> contentToWrite) {
+        if (!Files.exists(father)) {
+            System.out.println("So, something happened. This folder does not exist. Bye");
+            return;
+        }
 
-                try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(father)) {
-                    for (Path child : directoryStream) {
-                        children.add(child);
-                    }
-                }
+        List<Path> children = new ArrayList<>();
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(father)) {
+            for (Path child : directoryStream) {
+                children.add(child);
+            }
+            Collections.sort(children);
 
-                if (children.isEmpty()) {
-                    return;
-                }
+            contentToWrite.add("\nContents of " + father.getFileName() + ":\n");
+            for (Path child : children) {
+                BasicFileAttributes attr = Files.readAttributes(child, BasicFileAttributes.class);
+                String childType = Files.isDirectory(child) ? " -- D" : " -- F";
+                contentToWrite.add("\t" + child.getFileName() + childType + "\n");
+                contentToWrite.add("\t\t[last modified: " + attr.lastModifiedTime() + "]\n");
+            }
 
-                Collections.sort(children);
-
-                writeCurrentDirectoryAndChildren(children, father);
-
-                for (Path child : children) {
-                    getCurrentAndChildren(child);
+            for (Path child : children) {
+                if (Files.isDirectory(child)) {
+                    processDirectory(child, contentToWrite);
                 }
             }
+
+
         } catch(IOException e){
             System.out.println(e.getMessage());
         }
     }
 
-    public static void writeCurrentDirectoryAndChildren(List<Path> children, Path father) {
-        Path destination = askDestination();
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(destination + File.separator +  "DirectoryTree.txt", true))) {
-            writer.write("\nContents of: " + father.getFileName() + "\n");
-
-            for (Path child : children) {
-                BasicFileAttributes attr = Files.readAttributes(child, BasicFileAttributes.class);
-                String childType = Files.isDirectory(child) ? "D" : "F";
-                writer.write("\t" + child.getFileName() + childType + "\n");
-                writer.write("\t\t[last modified: " + attr.lastModifiedTime() + "]\n");
+    public static void writeFile(Path destination, String fileName, List<String> content) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(destination + File.separator + fileName))) {
+            for (String line : content) {
+                writer.write(line);
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());

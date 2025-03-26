@@ -10,41 +10,33 @@ public class ReadFile {
 
     public static void runFileReader() {
         Path filePath = askFileToRead();
-        if (Files.exists(filePath)) {
-            readFromFile(filePath);
-        } else {
-            System.out.println("File not found");
-        }
+        readFromFile(filePath);
     }
 
     public static Path askFileToRead() {
-        System.out.println("\nYour current path is: " + System.getProperty("user.dir"));
-        System.out.println("Please enter the file you want to read: ");
-        String fileName = sc.nextLine();
-        Path filePath = Paths.get(System.getProperty("user.dir"), fileName);
 
-        if (!Files.exists(filePath)) {
-            System.out.println("File not found");
-            return null;
+        Path filePath;
+        while (true) {
+            System.out.println("Please enter the file you want to read: ");
+            filePath = Paths.get(System.getProperty("user.dir"), sc.nextLine());
+
+            if (Files.exists(filePath)) {
+                break;
+            }
+            System.out.println("I cannot seem to find that file");
         }
         return filePath;
     }
 
-    public static boolean isTextFile(Path path) {
-        return path.toString().endsWith(".txt");
-    }
-
     public static void readFromFile(Path path) {
         System.out.println("");
-        if (isTextFile(path)) {
-            try (BufferedReader reader = new BufferedReader(new FileReader(path.toString()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    System.out.println(line);
-                }
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
+        try (BufferedReader reader = new BufferedReader(new FileReader(path.toString()))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
             }
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
         }
     }
 }
