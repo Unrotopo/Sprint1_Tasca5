@@ -25,8 +25,8 @@ public class Main {
             AESCipher cipher = new AESCipher(configLoader);
             SecretKey secretKey = cipher.generateAESKey();
 
-            // cipher.encryptFile(secretKey, initializationVector);
-            // cipher.decryptFile(secretKey, initializationVector);
+            cipher.encryptFile(secretKey, initializationVector);
+            cipher.decryptFile(secretKey, initializationVector);
 
         } catch (IOException e) {
             System.out.println(e.getMessage());

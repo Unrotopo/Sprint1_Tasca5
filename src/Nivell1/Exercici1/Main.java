@@ -6,8 +6,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        String filePath = "Nivell1" + File.separator +
-                "Exercici1";
+        String filePath = "Nivell1" + File.separator + "Exercici1";
 
         DirectoryContentSorter.showSortedFiles(filePath);
     }
