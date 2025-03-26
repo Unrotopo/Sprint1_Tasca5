@@ -28,8 +28,7 @@ public class Person implements Serializable {
         this.age = age;
     }
 
-    static String personsDirectory = "src" + File.separator +
-            "Nivell1" + File.separator +
+    static String personsDirectory = "Nivell1" + File.separator +
             "Exercici5" + File.separator +
             "persons" + File.separator;
 
