@@ -7,8 +7,6 @@ fecha de modificación.
 El método runFileReader de la clase ReadFile muestra por pantalla los contenidos de un fichero .txt
 elegido por el usuario.
 
-La carpeta de trabajo del Proyecto es Tasca5.
-
 En la terminal navegar a ./Tasca5/src
 
 Para compilar los archivos ejecutar el siguiente comando:
