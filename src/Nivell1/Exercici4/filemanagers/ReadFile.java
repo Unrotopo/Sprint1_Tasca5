@@ -18,13 +18,21 @@ public class ReadFile {
         Path filePath;
         while (true) {
             System.out.println("Please enter the file you want to read: ");
-            filePath = Paths.get(System.getProperty("user.dir"), sc.nextLine());
+            String fileName = sc.nextLine();
+
+            if (!fileName.endsWith(".txt")) {
+                System.out.println("Please make sure the file ends in .txt");
+                continue;
+            }
+            
+            filePath = Paths.get(System.getProperty("user.dir"), fileName);
 
             if (Files.exists(filePath)) {
                 break;
             }
             System.out.println("I cannot seem to find that file");
         }
+        sc.close();
         return filePath;
     }
 

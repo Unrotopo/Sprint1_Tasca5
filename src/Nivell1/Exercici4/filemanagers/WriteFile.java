@@ -18,6 +18,7 @@ public class WriteFile {
         Path destination = askDirectory("Where do you want to save the file?");
         System.out.println("What will be the name of the file? (make it end in .txt)");
         String fileName = sc.nextLine();
+        sc.close();
 
         List<String> contentToWrite = new ArrayList<>();
         processDirectory(startingDirectory, contentToWrite);
