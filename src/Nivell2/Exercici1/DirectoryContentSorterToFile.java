@@ -52,28 +52,33 @@ public class DirectoryContentSorterToFile {
                     Files.createFile(outputPath);
                 }
 
-                try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath.toString(), true))) {
-                    writer.write("\nContents of: " + path.getFileName() + "\n");
+                writeToFile(path, children, outputPath);
 
-                    for (Path child : children) {
-                        BasicFileAttributes attr = Files.readAttributes(child, BasicFileAttributes.class);
-                        if (Files.isDirectory(child)) {
-                            writer.write("\t" + child.getFileName() + " -- D\n");
-                            writer.write("\t\t[last modified: " + attr.lastModifiedTime() + "]\n");
-                        } else {
-                            writer.write("\t" + child.getFileName() + " -- F\n");
-                            writer.write("\t\t[last modified: " + attr.lastModifiedTime() + "]\n");
-                        }
-                    }
-                } catch (IOException e) {
-                    System.out.println(e.getMessage());
-                }
                 for (Path child : children) {
                     writeMoreSortedFiles(child);
                 }
             }
         }catch (IOException e) {
-            System.out.println(e.getMessage());
+            System.out.println("Error going over directories: " + e.getMessage());
+        }
+    }
+
+    public void writeToFile(Path path, List<Path> children, Path outputPath) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath.toString(), true))) {
+            writer.write("\nContents of: " + path.getFileName() + "\n");
+
+            for (Path child : children) {
+                BasicFileAttributes attr = Files.readAttributes(child, BasicFileAttributes.class);
+                if (Files.isDirectory(child)) {
+                    writer.write("\t" + child.getFileName() + " -- D\n");
+                    writer.write("\t\t[last modified: " + attr.lastModifiedTime() + "]\n");
+                } else {
+                    writer.write("\t" + child.getFileName() + " -- F\n");
+                    writer.write("\t\t[last modified: " + attr.lastModifiedTime() + "]\n");
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error writing to file: " + e.getMessage());
         }
     }
 }

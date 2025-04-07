@@ -3,17 +3,18 @@ package Nivell2.Exercici1;
 import java.io.IOException;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         try {
-            ConfigLoader configLoader = new ConfigLoader();
-            configLoader.loadConfig("config.properties");
+            ConfigLoader configLoader = ConfigLoader.getConfigLoader();
 
             DirectoryContentSorterToFile sorter = new DirectoryContentSorterToFile(configLoader);
             sorter.runSorter();
 
+            System.out.println("Sorting completed successfully.");
+
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error: " + e.getMessage());
         }
     }
 }
