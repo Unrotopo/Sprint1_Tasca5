@@ -24,7 +24,7 @@ public class ReadFile {
                 System.out.println("Please make sure the file ends in .txt");
                 continue;
             }
-            
+
             filePath = Paths.get(System.getProperty("user.dir"), fileName);
 
             if (Files.exists(filePath)) {
