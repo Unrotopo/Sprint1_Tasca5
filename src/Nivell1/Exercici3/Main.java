@@ -1,6 +1,5 @@
 package Nivell1.Exercici3;
 
-import java.io.File;
 import java.nio.file.Paths;
 
 public class Main {

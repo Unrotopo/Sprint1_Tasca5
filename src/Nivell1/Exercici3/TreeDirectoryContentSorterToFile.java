@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,6 +17,7 @@ public class TreeDirectoryContentSorterToFile {
             "Nivell1" + File.separator +
             "Exercici3" + File.separator +
             "resources" + File.separator;
+    String fileName = "sorted.txt";
 
     public void writeMoreSortedFiles(Path path) {
         try {
@@ -34,27 +36,48 @@ public class TreeDirectoryContentSorterToFile {
 
                 Collections.sort(children);
 
-                try (BufferedWriter writer = new BufferedWriter(new FileWriter(destinationPath + "sorted.txt", true))) {
-                    writer.write("\nContents of: " + path.getFileName() + "\n");
+                writeToFile(path, children);
 
-                    for (Path child : children) {
-                    BasicFileAttributes attr = Files.readAttributes(child, BasicFileAttributes.class);
-                        if (Files.isDirectory(child)) {
-                            writer.write("\t" + child.getFileName() + " -- D\n");
-                            writer.write("\t\t[last modified: " + attr.lastModifiedTime() + "]\n");
-                        } else {
-                            writer.write("\t" + child.getFileName() + " -- F\n");
-                            writer.write("\t\t[last modified: " + attr.lastModifiedTime() + "]\n");
-                        }
-                    }
-                } catch (IOException e) {
-                    System.out.println(e.getMessage());
-                }
                 for (Path child : children) {
+                    if (Files.isDirectory(child) && !Files.isSymbolicLink(child)) {
                     writeMoreSortedFiles(child);
+                    }
                 }
             }
         }catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void writeToFile(Path path, List<Path> children) throws IOException {
+
+        Path outputDir = Paths.get(destinationPath);
+        Path outputFile = Paths.get(outputDir.toString(), fileName);
+        try {
+            if (!Files.exists(outputDir)) {
+                Files.createDirectories(outputDir);
+                System.out.println("Directory created: " + outputDir);
+            }
+            if (!Files.exists(outputFile)) {
+                Files.createFile(outputFile);
+                System.out.println("File created: " + outputFile);
+            }
+
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(destinationPath + fileName, true))) {
+                writer.write("\nContents of: " + path.getFileName() + "\n");
+
+                for (Path child : children) {
+                    BasicFileAttributes attr = Files.readAttributes(child, BasicFileAttributes.class);
+                    if (Files.isDirectory(child)) {
+                        writer.write("\t" + child.getFileName() + " -- D\n");
+                        writer.write("\t\t[last modified: " + attr.lastModifiedTime() + "]\n");
+                    } else {
+                        writer.write("\t" + child.getFileName() + " -- F\n");
+                        writer.write("\t\t[last modified: " + attr.lastModifiedTime() + "]\n");
+                    }
+                }
+            }
+        } catch (IOException e) {
             System.out.println(e.getMessage());
         }
     }
