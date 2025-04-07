@@ -33,6 +33,9 @@ public class AESCipher {
         Cipher cipher = Cipher.getInstance(TRANSFORMATION);
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, initializationVector);
 
+        DirectoryCheck.checkDirectory(inputDirectory);
+        DirectoryCheck.checkDirectory(outputDirectory);
+
         try (FileInputStream fis = new FileInputStream(inputDirectory + inFileName);
              FileOutputStream fos = new FileOutputStream(outputDirectory + outFileName);
              CipherOutputStream cos = new CipherOutputStream(fos, cipher)) {
@@ -50,15 +53,17 @@ public class AESCipher {
         }
     }
 
-    public void decryptFile(SecretKey secretKey, IvParameterSpec initializationVector) throws Exception {
-
-        byte[] initializationVectorSize = new byte[16];
+    public void decryptFile(SecretKey secretKey) throws Exception {
 
         try (FileInputStream fis = new FileInputStream(outputDirectory + outFileName);
              FileOutputStream fos = new FileOutputStream(outputDirectory + inFileName)) {
 
-            fis.read(initializationVectorSize);
+            byte[] initializationVectorSize = new byte[16];
+            if (fis.read(initializationVectorSize) != 16) {
+                throw new IllegalArgumentException("Invalid encrypted file, missing IV.");
+            }
 
+            IvParameterSpec initializationVector = new IvParameterSpec(initializationVectorSize);
             Cipher cipher = Cipher.getInstance(TRANSFORMATION);
             cipher.init(Cipher.DECRYPT_MODE, secretKey, initializationVector);
 

@@ -23,19 +23,19 @@ public class ConfigLoader {
             ConfigLoader configLoader = new ConfigLoader();
             configLoader.loadConfig(configPath.toString());
 
-            String inputDir = configLoader.getProperty("input.directory");
+            String inputDir = configLoader.getProperty("inputDirectory");
             if (inputDir == null || inputDir.isBlank()) {
-                System.out.println("Missing 'input.directory' in config file.");
+                System.out.println("Missing 'input directory' in config file.");
             }
 
-            String outputDir = configLoader.getProperty("output.directory");
+            String outputDir = configLoader.getProperty("outputDirectory");
             if (outputDir == null || outputDir.isBlank()) {
-                System.out.println("Missing 'output.directory' in config file.");
+                System.out.println("Missing 'output directory' in config file.");
             }
 
-            String fileName = configLoader.getProperty("file.name");
+            String fileName = configLoader.getProperty("fileName");
             if (fileName == null || fileName.isBlank()) {
-                System.out.println("Missing 'file.name' in config file.");
+                System.out.println("Missing 'file name' in config file.");
             }
 
             return configLoader;
