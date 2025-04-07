@@ -55,6 +55,9 @@ public class AESCipher {
 
     public void decryptFile(SecretKey secretKey) throws Exception {
 
+        DirectoryCheck.checkDirectory(inputDirectory);
+        DirectoryCheck.checkDirectory(outputDirectory);
+
         try (FileInputStream fis = new FileInputStream(outputDirectory + outFileName);
              FileOutputStream fos = new FileOutputStream(outputDirectory + inFileName)) {
 
