@@ -41,7 +41,9 @@ public class TreeDirectoryContentSorter {
                     }
                 }
                 for (Path child : children) {
-                    showMoreSortedFiles(child);
+                    if (Files.isDirectory(child) && !Files.isSymbolicLink(child)) {
+                        showMoreSortedFiles(child);
+                    }
                 }
             }
         } catch(IOException e){
