@@ -13,9 +13,7 @@ import java.util.List;
 public class TreeDirectoryContentSorter {
 
     public void showMoreSortedFiles(Path path) {
-        if (!Files.isDirectory(path)) {
-            return;
-        }
+        if (!Files.isDirectory(path)) return;
 
         try {
             List<Path> children = getDirectoryChildren(path);
