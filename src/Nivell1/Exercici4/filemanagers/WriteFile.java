@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.Buffer;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,7 +14,7 @@ public class WriteFile {
 
     private static final Scanner sc = new Scanner(System.in);
 
-    public static void runWriter() {
+    public static void runWriter() throws IOException {
         Path startingDirectory = askDirectory("Give me a folder and I will tell you everything it contains:");
         Path destination = askDirectory("Where do you want to save the file?");
         System.out.println("What will be the name of the file? (make it end in .txt)");
@@ -41,37 +42,53 @@ public class WriteFile {
         return directory;
     }
 
-    public static void processDirectory(Path father, List<String> contentToWrite) {
+    public static void processDirectory(Path father, List<String> contentToWrite) throws IOException {
         if (!Files.exists(father)) {
             System.out.println("So, something happened. This folder does not exist. Bye");
             return;
         }
+        try {
+            List<Path> children = getSortedDirectoryContents(father);
+            appendDirectoryHeader(father, contentToWrite);
+            appendDirectoryContent(children, contentToWrite);
+            processSubdirectories(children, contentToWrite);
+        } catch (IOException e) {
+            System.out.println("Error processing directory: " + e.getMessage());
+        }
+    }
 
+    public static void appendDirectoryHeader (Path father, List<String> contentToWrite) {
+        contentToWrite.add("\nContents of " + father.getFileName() + ":\n");
+    }
+
+    public static void appendDirectoryContent (List<Path> children, List<String> contentToWrite) throws IOException {
+        for (Path child : children) {
+            BasicFileAttributes attr = Files.readAttributes(child, BasicFileAttributes.class);
+            String childType = Files.isDirectory(child) ? " -- D" : " -- F";
+            contentToWrite.add("\t" + child.getFileName() + childType + "\n");
+            contentToWrite.add("\t\t[last modified: " + attr.lastModifiedTime() + "]\n");
+        }
+    }
+
+    public static void processSubdirectories (List<Path> children, List<String> contentToWrite) throws IOException {
+        for (Path child : children) {
+            if (Files.isDirectory(child)) {
+                processDirectory(child, contentToWrite);
+            }
+        }
+    }
+
+    public static List<Path> getSortedDirectoryContents (Path path) {
         List<Path> children = new ArrayList<>();
-        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(father)) {
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(path)) {
             for (Path child : directoryStream) {
                 children.add(child);
             }
             Collections.sort(children);
-
-            contentToWrite.add("\nContents of " + father.getFileName() + ":\n");
-            for (Path child : children) {
-                BasicFileAttributes attr = Files.readAttributes(child, BasicFileAttributes.class);
-                String childType = Files.isDirectory(child) ? " -- D" : " -- F";
-                contentToWrite.add("\t" + child.getFileName() + childType + "\n");
-                contentToWrite.add("\t\t[last modified: " + attr.lastModifiedTime() + "]\n");
-            }
-
-            for (Path child : children) {
-                if (Files.isDirectory(child)) {
-                    processDirectory(child, contentToWrite);
-                }
-            }
-
-
-        } catch(IOException e){
+        } catch (IOException e){
             System.out.println(e.getMessage());
         }
+        return children;
     }
 
     public static void writeFile(Path destination, String fileName, List<String> content) {
