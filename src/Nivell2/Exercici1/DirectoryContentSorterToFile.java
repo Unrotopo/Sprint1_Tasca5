@@ -28,38 +28,48 @@ public class DirectoryContentSorterToFile {
     }
 
     public void writeMoreSortedFiles(Path path) {
+        if (!Files.isDirectory(path)) return;
+
         try {
-            if (Files.isDirectory(path)) {
-                List<Path> children = new ArrayList<>();
+            List<Path> children = getChildren(path);
+            if (children.isEmpty()) return;
+            Collections.sort(children);
 
-                try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(path)) {
-                    for (Path child : directoryStream) {
-                        children.add(child);
-                    }
-                }
+            Path outputPath = getOutputPath();
+            writeToFile(path, children, outputPath);
+            iterateThroughChildren(children);
 
-                if (children.isEmpty()) {
-                    return;
-                }
-
-                Collections.sort(children);
-
-                Path outputPath = Paths.get(outputDirectory + fileName);
-
-                Files.createDirectories(Paths.get(outputDirectory));
-
-                if (Files.notExists(outputPath)) {
-                    Files.createFile(outputPath);
-                }
-
-                writeToFile(path, children, outputPath);
-
-                for (Path child : children) {
-                    writeMoreSortedFiles(child);
-                }
-            }
-        }catch (IOException e) {
+        } catch (IOException e) {
             System.out.println("Error going over directories: " + e.getMessage());
+        }
+    }
+
+    public List<Path> getChildren(Path path) {
+        List<Path> children = new ArrayList<>();
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(path)) {
+            for (Path child : directoryStream) {
+                children.add(child);
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading directory: " + e.getMessage());
+        }
+        return children;
+    }
+
+    public Path getOutputPath() throws IOException {
+        Path outputPath = Paths.get(outputDirectory, fileName);
+        Files.createDirectories(Paths.get(outputDirectory));
+        if (Files.notExists(outputPath)) {
+            Files.createFile(outputPath);
+        }
+        return outputPath;
+    }
+
+    public void iterateThroughChildren(List<Path> children) {
+        for (Path child : children) {
+            if (Files.isDirectory(child)) {
+                writeMoreSortedFiles(child);
+            }
         }
     }
 

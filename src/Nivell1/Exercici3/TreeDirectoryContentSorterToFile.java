@@ -27,7 +27,7 @@ public class TreeDirectoryContentSorterToFile {
         try {
             if (Files.isDirectory(path)) {
 
-                List<Path> children = getDirectoryChildren(path);
+                List<Path> children = getSubdirectories(path);
                 if (children.isEmpty()) return;
                 Collections.sort(children);
 
@@ -39,7 +39,7 @@ public class TreeDirectoryContentSorterToFile {
         }
     }
 
-    public List<Path> getDirectoryChildren(Path path) throws IOException {
+    public List<Path> getSubdirectories(Path path) throws IOException {
         List<Path> children = new ArrayList<>();
 
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(path)) {
