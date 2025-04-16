@@ -1,9 +1,11 @@
 package Nivell3.Exercici1;
 
+import java.io.File;
+
 public class DirectoryCheck {
 
     public static void checkDirectory(String directoryPath) {
-        java.io.File directory = new java.io.File(directoryPath);
+        File directory = new File(directoryPath);
         if (!directory.exists()) {
             System.out.println("Directory does not exist: " + directoryPath);
             if (directory.mkdirs()) {

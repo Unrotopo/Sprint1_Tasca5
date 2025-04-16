@@ -12,10 +12,10 @@ import java.security.NoSuchAlgorithmException;
 public class AESCipher {
     public final String ALGORITHM = "AES";
     public final String TRANSFORMATION = "AES/CBC/PKCS5Padding";
-    private String inputDirectory;
-    private String outputDirectory;
-    private String inFileName;
-    private String outFileName;
+    private final String inputDirectory;
+    private final String outputDirectory;
+    private final String inFileName;
+    private final String outFileName;
 
 
     public AESCipher(ConfigLoader config) {
@@ -26,21 +26,20 @@ public class AESCipher {
 
     }
 
-    public void encryptFile(SecretKey secretKey, IvParameterSpec initializationVector) throws IOException, InvalidAlgorithmParameterException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
-
-        byte[] initializationVectorSize = new byte[16];
-
-        Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey, initializationVector);
-
+    public void checkDirectories() {
         DirectoryCheck.checkDirectory(inputDirectory);
         DirectoryCheck.checkDirectory(outputDirectory);
+    }
+
+    public void encryptFile(SecretKey secretKey, IvParameterSpec initializationVector) {
+
+        Cipher cipher = getCipher(secretKey, initializationVector);
 
         try (FileInputStream fis = new FileInputStream(inputDirectory + inFileName);
              FileOutputStream fos = new FileOutputStream(outputDirectory + outFileName);
              CipherOutputStream cos = new CipherOutputStream(fos, cipher)) {
 
-            fos.write(initializationVectorSize);
+            fos.write(initializationVector.getIV());
 
             byte[] buffer = new byte[2048];
             int bytesRead;
@@ -53,34 +52,66 @@ public class AESCipher {
         }
     }
 
-    public void decryptFile(SecretKey secretKey) throws Exception {
+    public Cipher getCipher(SecretKey secretKey, IvParameterSpec initializationVector) {
+        try {
+            Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, initializationVector);
+            checkDirectories();
+            return cipher;
 
-        DirectoryCheck.checkDirectory(inputDirectory);
-        DirectoryCheck.checkDirectory(outputDirectory);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
+    public void decryptFile(SecretKey secretKey) throws IllegalArgumentException {
+
+        checkDirectories();
 
         try (FileInputStream fis = new FileInputStream(outputDirectory + outFileName);
              FileOutputStream fos = new FileOutputStream(outputDirectory + inFileName)) {
 
-            byte[] initializationVectorSize = new byte[16];
-            if (fis.read(initializationVectorSize) != 16) {
-                throw new IllegalArgumentException("Invalid encrypted file, missing IV.");
-            }
+            IvParameterSpec iv = readInitializationVector(fis);
+            Cipher cipher = initCipher(secretKey, iv);
+            readEncryptedFile(fis, fos, cipher);
 
-            IvParameterSpec initializationVector = new IvParameterSpec(initializationVectorSize);
-            Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-            cipher.init(Cipher.DECRYPT_MODE, secretKey, initializationVector);
-
-            try (CipherInputStream cis = new CipherInputStream(fis, cipher)) {
-                byte[] buffer = new byte[2048];
-                int bytesRead;
-                while ((bytesRead = cis.read(buffer)) != -1) {
-                    fos.write(buffer, 0, bytesRead);
-                }
-            }
+        } catch (NoSuchPaddingException | InvalidAlgorithmParameterException | IOException | InvalidKeyException |
+                 NoSuchAlgorithmException e) {
+            System.out.println(e.getMessage());
         }
     }
 
-    public SecretKey generateAESKey() throws NoSuchAlgorithmException {
+    private Cipher initCipher(SecretKey key, IvParameterSpec iv)
+            throws NoSuchPaddingException, NoSuchAlgorithmException,
+            InvalidKeyException, InvalidAlgorithmParameterException {
+
+        Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+        cipher.init(Cipher.DECRYPT_MODE, key, iv);
+        return cipher;
+    }
+
+    public void readEncryptedFile (FileInputStream fis, FileOutputStream fos, Cipher cipher) throws IllegalArgumentException {
+        try (CipherInputStream cis = new CipherInputStream(fis, cipher)) {
+            byte[] buffer = new byte[2048];
+            int bytesRead;
+            while ((bytesRead = cis.read(buffer)) != -1) {
+                fos.write(buffer, 0, bytesRead);
+            }
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private IvParameterSpec readInitializationVector(FileInputStream fis) throws IOException {
+        byte[] ivBytes = new byte[16];
+        if (fis.read(ivBytes) != 16) {
+            throw new IllegalArgumentException("Invalid encrypted file: missing or incomplete IV.");
+        }
+        return new IvParameterSpec(ivBytes);
+    }
+
+    public SecretKey generateAESKey () throws NoSuchAlgorithmException {
         KeyGenerator keyGenerator = KeyGenerator.getInstance(ALGORITHM);
         keyGenerator.init(256);
         return keyGenerator.generateKey();
